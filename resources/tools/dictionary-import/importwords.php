@@ -36,21 +36,26 @@ if (!file_exists($argv[1])) {
 
 $fp  = fopen($argv[1], "r");
 $fp2 = fopen($argv[2], "w");
-fwrite($fp2, "<?php /*\n");
+sfwrite($fp2, "<?php /*\n");
 
 while ($lin = fgets($fp)) {
     $lin    = trim(strtolower($lin));
     $strlen = strlen($lin);
     if ($strlen>=$minLength && $strlen<=$maxLength && preg_match("/^[a-z]+$/", $lin)) {
         $lin = str_pad($lin, $maxLength);
-        fwrite($fp2, "$lin\n");
+        sfwrite($fp2, "$lin\n");
     }
 }
-fwrite($fp2, "*/    ?>\n");
+sfwrite($fp2, "*/    ?>\n");
 
 fclose($fp);
 fclose($fp2);
 
-
+function sfwrite($handle,$data){
+    if(strlen($data)!==($written=fwrite($handle,$data))){
+        throw new Exception('tried to write '.strlen($data).' bytes to disk, but could only write '.var_export($written,true).' bytes!');
+    }
+    return $written;
+}
 
 ?>
