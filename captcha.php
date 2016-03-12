@@ -1,6 +1,6 @@
 <?php
 /**
- * Script para la generación de CAPTCHAS
+ * Script para la generaciÃ³n de CAPTCHAS
  *
  * @author  Jose Rodriguez <josecl@gmail.com>
  * @license GPLv3
@@ -212,8 +212,13 @@ class SimpleCaptcha {
             $this->WriteLine();
         }
         $this->WaveImage();
-        if ($this->blur && function_exists('imagefilter')) {
-            imagefilter($this->im, IMG_FILTER_GAUSSIAN_BLUR);
+        
+        if ($this->blur) {
+            if(!function_exists('imagefilter')){
+                trigger_error('blur is enabled, but imagefilter is not available. will not be able to blur image. fix your installation or disable blur!',E_USER_WARNING);
+            } else {
+                imagefilter($this->im, IMG_FILTER_GAUSSIAN_BLUR);
+            }
         }
         $this->ReduceImage();
 
@@ -476,7 +481,7 @@ class SimpleCaptcha {
      * Reduce the image to the final size
      */
     protected function ReduceImage() {
-        // Reduzco el tamaño de la imagen
+        // Reduzco el tamaÃ±o de la imagen
         $imResampled = imagecreatetruecolor($this->width, $this->height);
         imagecopyresampled($imResampled, $this->im,
             0, 0, 0, 0,
@@ -498,12 +503,20 @@ class SimpleCaptcha {
      * File generation
      */
     protected function WriteImage() {
-        if ($this->imageFormat == 'png' && function_exists('imagepng')) {
+        if($this->imageFormat=='png'){
+            if(!function_exists('imagepng')){
+                trigger_error('imageFormat is set to png, but imagepng is not available. fix your installation or change to jpg format! will fallback to jpg..',E_USER_WARNING);
+                header("Content-type: image/jpeg");
+                imagejpeg($this->im, null, 80);
+                return;
+            }
             header("Content-type: image/png");
             imagepng($this->im);
+            return;
         } else {
             header("Content-type: image/jpeg");
             imagejpeg($this->im, null, 80);
+            return;
         }
     }
 
